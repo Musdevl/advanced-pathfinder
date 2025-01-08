@@ -16,6 +16,10 @@ public class Node {
         neighbors.add(n);
     }
 
+    public String getData(){
+        return data;
+    }
+
     public void linkToNode(Node node, int weight){
         this.neighbors.add(new Edge(this, node, weight));
     }
@@ -30,7 +34,7 @@ public class Node {
 
     @Override
     public String toString(){
-        return data + " links : " + neighbors;
+        return data;
     }
 
 }

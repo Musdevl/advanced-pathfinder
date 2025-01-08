@@ -20,4 +20,11 @@ public class Edge {
     public Node getTo(){
         return to;
     }
+    public int getWeight() {
+        return weight;
+    }
+    @Override
+    public String toString() {
+        return "Edge [from=" + from.getData() + ", to=" + to.getData() + ", weight=" + weight + "]";
+    }
 }
