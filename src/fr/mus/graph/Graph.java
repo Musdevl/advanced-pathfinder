@@ -20,6 +20,7 @@ public class Graph {
         Edge e = new Edge(from, to, weight);
         edges.add(e);
         from.linkToNode(to, weight);
+        to.linkToNode(from, weight);
     }
 
     public ArrayList<Edge> getEdges() {

@@ -2,14 +2,13 @@ package fr.mus.graph;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
 import java.util.HashMap;
-import java.util.Map;
 
 public class Visual extends JPanel {
 
     private Graph graph;
-    private HashMap<Node, Point> nodePositions;
+    private HashMap<Node, Point2D.Double> nodePositions;
     private int width, height;
     private Physic physic;
     private Timer timer;
@@ -39,25 +38,28 @@ public class Visual extends JPanel {
 
     public void applyForces() {
         for (Node node : graph.getNodes()) {
-            Point posNode = nodePositions.get(node);
-            Point attraction = physic.attractionForce(nodePositions, node);
-            Point repulsion = physic.repulsionForce(nodePositions, node);
-            posNode.translate(attraction.x + repulsion.x, attraction.y + repulsion.y);
-            this.nodePositions.put(node, posNode);
+            Point2D.Double posNode = nodePositions.get(node);
+            Point2D.Double attraction = physic.attractionForce(nodePositions, node);
+            Point2D.Double repulsion = physic.repulsionForce(nodePositions, node);
+
+            double newX = posNode.x + attraction.x + repulsion.x;
+            double newY = posNode.y + attraction.y + repulsion.y;
+
+            nodePositions.put(node, new Point2D.Double(newX, newY));
         }
     }
 
     private void layoutGraph() {
         int gridSize = (int) Math.ceil(Math.sqrt(graph.getNodes().size()));
-        int cellSize = 100;
-        int startX = 50;
-        int startY = 50;
+        int cellSize = 10;
+        double startX = 900.0;
+        double startY = 500;
 
         int index = 0;
         for (Node node : graph.getNodes()) {
-            int x = startX + (index % gridSize) * cellSize;
-            int y = startY + (index / gridSize) * cellSize;
-            nodePositions.put(node, new Point(x, y));
+            double x = startX + (index % gridSize) * cellSize;
+            double y = startY + (index / gridSize) * cellSize;
+            nodePositions.put(node, new Point2D.Double(x, y));
             index++;
         }
     }
@@ -87,7 +89,7 @@ public class Visual extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        g2d.scale(zoomFactor, zoomFactor);  // Appliquer le facteur de zoom global
+        g2d.scale(zoomFactor, zoomFactor);
 
         // Fond noir
         setBackground(Color.BLACK);
@@ -96,19 +98,19 @@ public class Visual extends JPanel {
         g2d.setColor(Color.WHITE);
         for (Node node : graph.getNodes()) {
             for (Edge edge : node.getNeighbors()) {
-                Point from = nodePositions.get(edge.getFrom());
-                Point to = nodePositions.get(edge.getTo());
-                g2d.drawLine(from.x, from.y, to.x, to.y);
+                Point2D.Double from = nodePositions.get(edge.getFrom());
+                Point2D.Double to = nodePositions.get(edge.getTo());
+                g2d.drawLine((int) from.x, (int) from.y, (int) to.x, (int) to.y);
             }
         }
 
         // Dessiner les nœuds
         g2d.setColor(Color.GREEN);
         for (Node node : graph.getNodes()) {
-            Point point = nodePositions.get(node);
-            g2d.fillOval(point.x - 15, point.y - 15, 30, 30);
+            Point2D.Double point = nodePositions.get(node);
+            g2d.fillOval((int) point.x - 15, (int) point.y - 15, 30, 30);
             g2d.setColor(Color.WHITE);
-            g2d.drawString(node.getData(), point.x - 10, point.y - 20);
+            g2d.drawString(node.getData(), (int) point.x - 10, (int) point.y - 20);
         }
     }
 }
