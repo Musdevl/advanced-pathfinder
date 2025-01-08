@@ -13,35 +13,39 @@ public class Visual extends JPanel {
     private int width, height;
     private Physic physic;
     private Timer timer;
+    private double zoomFactor = 1.0;
 
     public Visual(Graph graph, int width, int height) {
-
         this.graph = graph;
         this.nodePositions = new HashMap<>();
         this.physic = new Physic(width, height, graph.getNodes());
         layoutGraph();
 
-        timer = new Timer(50, e -> {
+        this.addMouseWheelListener(e -> {
+            int rotation = e.getWheelRotation();
+            if (rotation < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        });
+
+        timer = new Timer(1, e -> {
             applyForces();
             repaint();
         });
         timer.start();
     }
 
-    public void applyForces(){
-        System.out.println("Applying forces");
-        double forceFactor = 0.1;
-        // Forces
-        for(Node node : graph.getNodes()){
+    public void applyForces() {
+        for (Node node : graph.getNodes()) {
             Point posNode = nodePositions.get(node);
             Point attraction = physic.attractionForce(nodePositions, node);
-            Point repuslsion = physic.repulsionForce(nodePositions, node);
-            posNode.translate(attraction.x + repuslsion.x, attraction.y + repuslsion.y);
+            Point repulsion = physic.repulsionForce(nodePositions, node);
+            posNode.translate(attraction.x + repulsion.x, attraction.y + repulsion.y);
             this.nodePositions.put(node, posNode);
         }
     }
-
-
 
     private void layoutGraph() {
         int gridSize = (int) Math.ceil(Math.sqrt(graph.getNodes().size()));
@@ -58,25 +62,48 @@ public class Visual extends JPanel {
         }
     }
 
+    private void zoomIn() {
+        if (zoomFactor < 2.0) {
+            zoomFactor += 0.1;
+        }
+        setZoomFactor(zoomFactor);
+    }
+
+    private void zoomOut() {
+        if (zoomFactor > 0.5) {
+            zoomFactor -= 0.1;
+        }
+        setZoomFactor(zoomFactor);
+    }
+
+    public void setZoomFactor(double zoomFactor) {
+        this.zoomFactor = zoomFactor;
+        repaint();
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        g2d.scale(zoomFactor, zoomFactor);  // Appliquer le facteur de zoom global
+
+        // Fond noir
+        setBackground(Color.BLACK);
+
         // Dessiner les arêtes
-        g2d.setColor(Color.GRAY);
+        g2d.setColor(Color.WHITE);
         for (Node node : graph.getNodes()) {
             for (Edge edge : node.getNeighbors()) {
                 Point from = nodePositions.get(edge.getFrom());
                 Point to = nodePositions.get(edge.getTo());
                 g2d.drawLine(from.x, from.y, to.x, to.y);
-                g2d.drawString(String.valueOf(edge.getWeight()), (from.x + to.x) / 2, (from.y + to.y) / 2);
             }
         }
 
         // Dessiner les nœuds
-        g2d.setColor(Color.BLUE);
+        g2d.setColor(Color.GREEN);
         for (Node node : graph.getNodes()) {
             Point point = nodePositions.get(node);
             g2d.fillOval(point.x - 15, point.y - 15, 30, 30);
@@ -84,5 +111,4 @@ public class Visual extends JPanel {
             g2d.drawString(node.getData(), point.x - 10, point.y - 20);
         }
     }
-
 }

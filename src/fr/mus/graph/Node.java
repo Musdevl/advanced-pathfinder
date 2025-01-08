@@ -12,10 +12,6 @@ public class Node {
         this.neighbors = new ArrayList<>();
     }
 
-    public void addLink(Edge n){
-        neighbors.add(n);
-    }
-
     public String getData(){
         return data;
     }
