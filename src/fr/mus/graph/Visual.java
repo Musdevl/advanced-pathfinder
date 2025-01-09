@@ -45,7 +45,8 @@ public class Visual extends JPanel {
             double newX = posNode.x + attraction.x + repulsion.x;
             double newY = posNode.y + attraction.y + repulsion.y;
 
-            nodePositions.put(node, new Point2D.Double(newX, newY));
+            Point2D.Double clampedPos = physic.clampPosition(new Point2D.Double(newX, newY));
+            nodePositions.put(node, clampedPos);
         }
     }
 
@@ -95,7 +96,7 @@ public class Visual extends JPanel {
         setBackground(Color.BLACK);
 
         // Dessiner les arêtes
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(Color.GRAY);
         for (Node node : graph.getNodes()) {
             for (Edge edge : node.getNeighbors()) {
                 Point2D.Double from = nodePositions.get(edge.getFrom());
@@ -105,11 +106,10 @@ public class Visual extends JPanel {
         }
 
         // Dessiner les nœuds
-        g2d.setColor(Color.GREEN);
+        g2d.setColor(Color.WHITE);
         for (Node node : graph.getNodes()) {
             Point2D.Double point = nodePositions.get(node);
             g2d.fillOval((int) point.x - 15, (int) point.y - 15, 30, 30);
-            g2d.setColor(Color.WHITE);
             g2d.drawString(node.getData(), (int) point.x - 10, (int) point.y - 20);
         }
     }

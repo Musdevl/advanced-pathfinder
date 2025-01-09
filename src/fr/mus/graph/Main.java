@@ -2,7 +2,7 @@ package fr.mus.graph;
 
 import javax.swing.*;
 
-public class Main {
+public class Main {gi
     public static void main(String[] args) {
 
         int width = 1920;

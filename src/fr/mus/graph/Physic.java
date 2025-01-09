@@ -1,5 +1,6 @@
 package fr.mus.graph;
 
+import javax.swing.plaf.BorderUIResource;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +21,14 @@ public class Physic {
         this.k = C * Math.sqrt((double) (width * height) / nodes.size()) * 0.05;  // Plus petit facteur k
     }
 
+    public Point2D.Double clampPosition(Point2D.Double pos) {
+        double margin = 15;
+        double clampedX = Math.max(margin, Math.min(pos.x, width-margin));
+        double clampedY = Math.max(margin, Math.min(pos.y, height-margin));
+        return new Point2D.Double(clampedX, clampedY);
+    }
+
+
     public Point2D.Double repulsionForce(HashMap<Node, Point2D.Double> dictPos, Node node1) {
         Point2D.Double displacement = new Point2D.Double();
         Point2D.Double posA = dictPos.get(node1);
@@ -29,23 +38,25 @@ public class Physic {
                 double distance = posA.distance(posB);
                 double dx = posB.x - posA.x;
                 double dy = posB.y - posA.y;
-                if (distance > 2) {
+                if (distance > 0) {
                     // Limiter la répulsion en fonction de la distance
                     double force = -k * k / distance;
                     force = Math.max(-5, Math.min(force, 5));
+
+                    if(distance < 150){
+                        force *= 4;
+                    }
 
                     displacement.x += dx / distance * force;
                     displacement.y += dy / distance * force;
                 }
             }
         }
-        System.out.println("Repulsion : " + displacement);
         return displacement;
     }
 
     public Point2D.Double attractionForce(HashMap<Node, Point2D.Double> dictPos, Node node1) {
         Point2D.Double displacement = new Point2D.Double();
-        System.out.println(k);
         for (Edge edge : node1.getNeighbors()) {
             Point2D.Double A = dictPos.get(edge.getFrom());
             Point2D.Double B = dictPos.get(edge.getTo());
@@ -60,7 +71,6 @@ public class Physic {
                 displacement.y += dy / distance * force;
             }
         }
-        System.out.println("Attraction : " + displacement);
         return displacement;
     }
 }
